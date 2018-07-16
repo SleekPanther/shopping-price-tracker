@@ -1,1 +1,1 @@
-# shopping-price-tracker
+# Shopping Price Tracker
