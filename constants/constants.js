@@ -1,3 +1,3 @@
 export default {
-	CURRENCIES: ['$', '¢', '€', '£'], 
+	CURRENCIES: ['$', '¢', '€', '£', 'x', 'y', 'z', 'a'], 
 }

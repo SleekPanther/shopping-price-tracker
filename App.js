@@ -26,18 +26,25 @@ export default class App extends React.Component {
 		let now = new Date()
 		this.buildTime = `${now.getHours()}:${now.getMinutes()}:${now.getSeconds()}`
 
-		this.databse = firebase.database()
 
+		this.databse = firebase.database()
 		this.databse.ref().set({
 			time: this.buildTime,
 		})
 
+		this.focusNextField = this.focusNextField.bind(this);
+		this.textInputs = {}
+
 		this.state = {
 			text: 'initial', 
-			currency: '--', 
+			currency: '$$', 
 			messages: [1, 2], 
 		}
 
+	}
+
+	focusNextField(id) {
+		this.textInputs[id].focus();
 	}
 
 	buttonPress(){
@@ -49,34 +56,76 @@ export default class App extends React.Component {
 
 	render() {
 		return (
-			<View style={styles.container}>
-				<View style={[styles.addNewContainer]}>
-				<TextInput 
-					style={[styles.inputBox, styles.thinBorder]}
-					onChangeText = {(text)=> this.setState({text})}
-					onSubmitEditing={(event)=>this.setState({text: event.nativeEvent.text})}
-					value={this.state.text} />
+			<View style={[styles.container]}>
+				<View style={[styles.addNewContainer, styles.thinBorder]}>
+					<View style={[styles.thinBorder, styles.box]}>
+						<Text>Item</Text>
+						<TextInput 
+							style={[styles.inputBox, styles.thinBorder]}
+							onChangeText = {(text)=> this.setState({text})}
+							ref={input=>{this.textInputs['itemName']=input}}
+							onSubmitEditing={(event)=>{
+								this.setState({text: event.nativeEvent.text})
+								this.focusNextField('price')
+							}}
+							blurOnSubmit={false}
+							returnLeyLabel='Next'
+							returnKeyType='next'
+							value={this.state.text} />
+					</View>
 
-				<SelectPicker 
-					data={CONSTANTS.CURRENCIES}
-					wrapHeight={100}
-					wrapWidth={25}
-					itemHeight={19}	//must match font size
+					<View style={[styles.thinBorder, styles.box, styles.priceContainer]}>
+						<Text style={[styles.priceLabel]}>Price</Text>
+						<View style={[styles.row, styles.priceInnerContainer]}>
+							<SelectPicker 
+								styles={[styles.addNewComponent, styles.pricePicker]}
+								data={CONSTANTS.CURRENCIES}
+								wrapHeight={80}
+								wrapWidth={25}
+								itemHeight={19}	//must match font size
 
-					onValueChange={(currency, selectedIndex)=>this.setState({currency: currency})}
-				/>
-				<Text>{this.state.currency}</Text>
-				
+								onValueChange={(currency, selectedIndex)=>this.setState({currency: currency})}
+							/>
+							<TextInput 
+								style={[styles.inputBox, styles.thinBorder, styles.priceInput]}
+								onChangeText = {(price)=> this.setState({price})}
+								keyboardType = 'numeric'
+								ref={input=>{this.textInputs['price']=input}}
+								onSubmitEditing={(event)=>{
+									this.setState({price: event.nativeEvent.price})
+									this.focusNextField('store')
+								}}
+								blurOnSubmit={false}
+								returnLeyLabel='Next'
+								returnKeyType='next'
+								value={this.state.price} />
+						</View>
+					</View>
+					<View style={[styles.box]}>
+						<Text>Store</Text>
+						<TextInput 
+								style={[styles.inputBox, styles.thinBorder]}
+								onChangeText = {(store)=> this.setState({store})}
+								ref={input=>{this.textInputs['store']=input}}
+								onSubmitEditing={(event)=>{
+									this.setState({store: event.nativeEvent.store})
+								}}
+								value={this.state.store} />
+					</View>
+
 				</View>
-				<TouchableHighlight underlayColor='yellow' style={[styles.button ]} onPress={() => this.buttonPress()}>
-					<Text style={[styles.buttonText]}>Submit</Text>
-				</TouchableHighlight>
 
-				<Text>{this.state.text}</Text>
-				{this.state.messages.map((message, index)=>{
-					return <Text key={index}>{message}</Text>
-				})}
-				<Text style={[styles.largeText]}>Built: {this.buildTime}</Text>
+				<View>
+					<TouchableHighlight underlayColor='yellow' style={[styles.button ]} onPress={() => this.buttonPress()}>
+						<Text style={[styles.buttonText]}>Submit</Text>
+					</TouchableHighlight>
+
+					<Text>{this.state.text}</Text>
+					{this.state.messages.map((message, index)=>{
+						return <Text key={index}>{message}</Text>
+					})}
+					<Text style={[styles.largeText]}>Built: {this.buildTime}</Text>
+				</View>
 			</View>
 		)
 	}
@@ -84,10 +133,11 @@ export default class App extends React.Component {
 
 const styles = StyleSheet.create({
 	container: {
-		flex: 1,
 		backgroundColor: '#fff',
-		alignItems: 'center',
+		flex: 1,
+		flexDirection: 'column', 
 		justifyContent: 'center',
+		alignItems: 'center',
 	},
 	largeText:{
 		fontSize: 45,
@@ -97,8 +147,36 @@ const styles = StyleSheet.create({
 	}, 
 
 	addNewContainer:{
-		// flexDirection: 'row', 
-		// justifyContent: 'center', 
+		flex: 1/5, 
+		flexDirection: 'row', 
+		justifyContent: 'space-between', 
+		// alignItems: 'center', 
+	}, 
+	box:{
+		flex: 1, 
+		flexDirection: 'column', 
+	}, 
+	row:{
+		flexDirection: 'row', 
+	}, 
+	column:{
+		flexDirection: 'column', 
+	}, 
+	priceContainer:{
+		flex: .5, 
+	}, 
+	priceInnerContainer:{
+		alignItems: 'center', 
+		marginTop: -27, 
+	}, 
+	priceLabel:{
+		marginLeft: 26, 
+	}, 
+	pricePicker:{
+		flex: 1, 
+	}, 
+	priceInput:{
+		flex:1, 
 	}, 
 
 	inputBox:{
