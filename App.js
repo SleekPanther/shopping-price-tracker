@@ -16,9 +16,10 @@ import {SelectPicker, DatePicker} from 'react-native-select-picker';
 import {Constants} from 'expo'
 
 import * as firebase from 'firebase'
-import firebaseConnection from './admin/firebaseSetup.js'		//get credentials file & connect
+import firebaseConnection from './admin/firebaseSetup'		//get credentials file & connect
+import facebookAppId from './admin/facebookAppSetup'
 
-import CONSTANTS from './constants/constants.js'
+import CONSTANTS from './constants/constants'
 
 
 export default class App extends React.Component {
@@ -29,7 +30,7 @@ export default class App extends React.Component {
 		this.buildTime = `${now.getHours()}:${now.getMinutes()}:${now.getSeconds()}`
 
 
-		this.databse = firebase.database()
+		this.databse = firebaseConnection.database()
 		// this.databse.ref().set({
 		// 	time: this.buildTime,
 		// })
@@ -38,11 +39,19 @@ export default class App extends React.Component {
 		this.textInputs = {}
 
 		this.state = {
-			text: 'initial', 
+			text: facebookAppId, 
 			currency: '$$', 
-			messages: [1, 2], 
+			messages: ['msg1'], 
 		}
 
+	}
+
+	componentDidMount(){
+		firebaseConnection.auth().onAuthStateChanged((user)=>{
+			if(user){
+				this.messages.push(user.uid)
+			}
+		})
 	}
 
 	focusNextField(id) {
@@ -50,11 +59,51 @@ export default class App extends React.Component {
 	}
 
 	buttonPress(){
-		this.databse.ref().set({
-			text: this.state.text,
-		})
+		this.saveSomethingToDb()
 	}
 
+	// Listen for authentication state to change.
+	//Created when mounting, not updated later?
+	componentDidMount(){
+		this.unsubscribe = firebase.auth().onAuthStateChanged((user) => {
+			if (user!=null) {
+				console.log('not logged in')
+				//navigate somewhere
+			}
+			else{
+				console.log(user)
+				saveSomethingToDb()
+			}
+		});
+	}
+
+	saveSomethingToDb(){
+		this.databse.ref('users/'+'noah').set({
+			time: this.buildTime,
+		})
+		// this.databse.ref('users/'+user.uid).set({
+		// 	time: this.buildTime,
+		// })
+	}
+
+	async loginWithFacebook() {
+		const { type, token } = await Expo.Facebook.logInWithReadPermissionsAsync(
+			facebookAppId,
+			{ permissions: ['public_profile'] }
+		);
+
+		if (type === 'success') {
+			const credential = firebase.auth.FacebookAuthProvider.credential(token);
+			console.log('firebasse credential=', credential)
+
+			// Sign in with credential from the Facebook user.
+			firebase.auth().signInAndRetrieveDataWithCredential(credential).catch((error) => {
+				console.log(error)
+			});
+		}
+	}
+
+	// loginWithGoogle
 
 	render() {
 		return (
@@ -124,6 +173,14 @@ export default class App extends React.Component {
 							<Text style={[styles.buttonText]}>Submit</Text>
 						</TouchableHighlight>
 
+						<TouchableHighlight underlayColor='yellow' style={[styles.button]} onPress={()=>this.loginWithFacebook()}>
+							<Text style={[styles.buttonText]}>Facebook Login</Text>
+						</TouchableHighlight>
+
+						<TouchableHighlight underlayColor='yellow' style={[styles.button]} onPress={()=>this.loginWithGoogle()}>
+							<Text style={[styles.buttonText]}>Google Login</Text>
+						</TouchableHighlight>
+
 						<Text>{this.state.text}</Text>
 						{this.state.messages.map((message, index)=>{
 							return <Text key={index}>{message}</Text>
@@ -137,6 +194,7 @@ export default class App extends React.Component {
 	}
 }
 
+//export styles to another file
 const styles = StyleSheet.create({
 	appContainer:{
 		flex: 1, 
@@ -164,7 +222,7 @@ const styles = StyleSheet.create({
 		flexDirection: 'row', 
 		justifyContent: 'space-between', 
 		alignItems: 'center', 
-		
+
 		borderWidth: 1, 
 		borderColor: '#f00',  
 	}, 
