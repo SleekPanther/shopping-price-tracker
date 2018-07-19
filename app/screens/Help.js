@@ -1,5 +1,5 @@
-import React from "react";
-import { ScrollView, Text, Linking, View } from "react-native";
+import React from "react"
+import { ScrollView, Text, Linking, View } from "react-native"
 import { onSignOut  } from "../auth";
 
 export default class Help extends React.Component {
@@ -24,11 +24,8 @@ export default class Help extends React.Component {
 				<Text>Page: Help</Text>
 				<Text>-</Text>
 				<Text onPress={() => {
-					// this.test()
 					onSignOut().then(() => {
-						let obj = {name: 'from help'}
-						// navigate("SignedOut", obj)
-						this.props.navigation.navigate('SignedOut', {name: 'OUT'})
+						this.props.navigation.navigate('SignIn', {name: 'OUT'})
 					})}
 					}>
 					Log Out

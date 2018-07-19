@@ -12,10 +12,11 @@ export default class App extends React.Component {
 	constructor(props) {
 		super(props)
 
-		this.state = {
-			signedIn: false,
-			checkedSignIn: false
-		}
+		// this.state = {
+		// 	signedIn: false,
+		// 	checkedSignIn: false
+		// }
+
 		// console.log('constructor')
 		// result = isSignedIn()
 		// if(isSignedIn()){
@@ -46,17 +47,18 @@ export default class App extends React.Component {
 	}
 
 	componentDidMount() {
-		console.log('mount')
-		if(this.isSignedIn()){
-			// this.setState({signedIn: true, checkedSignIn: true})
-		}
-		console.log('done mounting')
+		// console.log('mount')
+		// if(this.isSignedIn()){
+		// 	// this.setState({signedIn: true, checkedSignIn: true})
+		// }
+		// console.log('done mounting')
 		// .then(res => this.setState({ signedIn: res, checkedSignIn: true }))
 		// .catch(err => alert("An error occurred"))
 	}
 
 	render() {
-		const { checkedSignIn, signedIn, user } = this.state
+		// const { checkedSignIn, signedIn, user } = this.state
+
 		// return (
 		// 		<View><Text>-</Text><Text>-</Text>
 		// 		<Text>{signedIn ? "true": "false"}</Text></View>
@@ -77,11 +79,11 @@ export default class App extends React.Component {
 		
 
 		// If we haven't checked AsyncStorage yet, don't render anything (better ways to do this)
-		if (!checkedSignIn) {
-			return null
-		}
+		// if (!checkedSignIn) {
+		// 	return null
+		// }
 
-		const Layout = createRootNavigator(false)
+		const Layout = createRootNavigator()
 		return <Layout />
 	}
 }

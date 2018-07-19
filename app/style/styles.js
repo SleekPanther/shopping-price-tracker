@@ -6,6 +6,9 @@ const constants = {
 }
 
 const styles = StyleSheet.create({
+	spinnerStyle:{
+		// flex: 1, 
+	}, 
 	appContainer:{
 		flex: 1, 
 	}, 

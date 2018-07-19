@@ -1,32 +1,33 @@
-import React from "react"
-import { Platform, StatusBar } from "react-native"
+import React from 'react'
+import { Platform, StatusBar } from 'react-native'
 import {
 	createStackNavigator,
 	createBottomTabNavigator,
 	createSwitchNavigator, 
-} from "react-navigation"
-import { FontAwesome } from "react-native-vector-icons"
+} from 'react-navigation'
+import { FontAwesome } from 'react-native-vector-icons'
 
-import SignIn from "./screens/SignIn"
-import Home from "./screens/Home"
-import Help from "./screens/Help"
+import SignIn from './screens/SignIn'
+import Home from './screens/Home'
+import Help from './screens/Help'
+import Loading from './screens/Loading'
 
 const headerStyle = {
-	marginTop: Platform.OS === "android" ? StatusBar.currentHeight : 0
+	marginTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0
 }
 
 // export const SignedOut = createStackNavigator({
 // 	// SignUp: {
 // 	// 	screen: SignUp,
 // 	// 	navigationOptions: {
-// 	// 		title: "Sign Up",
+// 	// 		title: 'Sign Up',
 // 	// 		headerStyle
 // 	// 	}
 // 	// },
 // 	SignIn: {
 // 		screen: SignIn,
 // 		navigationOptions: {
-// 			title: "Sign In",
+// 			title: 'Sign In',
 // 			headerStyle
 // 		}
 // 	}
@@ -37,18 +38,18 @@ const headerStyle = {
 // 		Home: {
 // 			screen: Home,
 // 			navigationOptions: {
-// 				tabBarLabel: "Home",
+// 				tabBarLabel: 'Home',
 // 				tabBarIcon: ({ tintColor }) => (
-// 					<FontAwesome name="home" size={20} color={tintColor} />
+// 					<FontAwesome name='home' size={20} color={tintColor} />
 // 				)
 // 			}
 // 		},
 // 		Help: {
 // 			screen: Help,
 // 			navigationOptions: {
-// 				tabBarLabel: "Help",
+// 				tabBarLabel: 'Help',
 // 				tabBarIcon: ({ tintColor }) => (
-// 					<FontAwesome name="question-circle" size={20} color={tintColor} />
+// 					<FontAwesome name='question-circle' size={20} color={tintColor} />
 // 				)
 // 			}
 // 		}
@@ -56,24 +57,27 @@ const headerStyle = {
 // 	{
 // 		tabBarOptions: {
 // 			style: {
-// 				paddingTop: Platform.OS === "android" ? StatusBar.currentHeight : 0
+// 				paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0
 // 			}
 // 		}
 // 	}
 // )
 
-export const createRootNavigator = (signedIn = false) => {//'signedIn = false'	 is default value	
+export const createRootNavigator = () => {
 	return createSwitchNavigator(
 		{
-			SignedOut: {
+			SignIn: {
 				screen: SignIn
+			}, 
+			Loading:{
+				screen: Loading
 			}, 
 			Home: {
 				screen: Home
 			},
 		},
 		{
-			initialRouteName: signedIn ? "Home" : "SignedOut"
+			initialRouteName: 'Loading'
 		}
 	)
 }
