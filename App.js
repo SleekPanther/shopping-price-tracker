@@ -13,13 +13,84 @@ import {
 	Platform, 
 } from 'react-native';
 import {SelectPicker, DatePicker} from 'react-native-select-picker';
-import {Constants} from 'expo'
+import Expo, {Constants} from 'expo'
 
 import * as firebase from 'firebase'
 import firebaseConnection from './admin/firebaseSetup'		//get credentials file & connect
 import facebookAppId from './admin/facebookAppSetup'
 
 import CONSTANTS from './constants/constants'
+
+import androidGoogleClientId from './admin/googleAdminSetup'
+
+// import {createStackNavigator} from 'react-navigation'
+// import LoginScreen from './navigation/login'
+
+// class MainScreen extends React.Component{
+// 	static navigationOptions = {
+// 		title: 'Main', 
+// 	}
+// 	render(){
+// 		const {navigate} = this.props.navigation
+// 		return (
+// 			<View>
+// 				<Text onPress={()=>navigate('Login')}>Go to login</Text>
+// 			</View>
+// 		)
+// 	}
+// }
+
+
+
+// const NavigationApp = createStackNavigator({
+// 	Login: {screen: LoginScreen}, 
+// 	Main: {screen: MainScreen}, 
+// })
+
+// export default class App extends React.Component{
+// 	constructor(props){
+// 		super(props)
+// 	}
+
+// 	 logInWithGoogle() {
+// 		console.log('loggin in')
+// 		// try {
+// 		// 	const result = await Expo.Google.logInAsync({
+// 		// 		androidClientId: androidGoogleClientId,
+// 		// 		// iosClientId: YOUR_CLIENT_ID_HERE,
+// 		// 		scopes: ['profile', 'email'],
+// 		// 	});
+
+// 		// 	if (result.type === 'success') {
+// 		// 		console.log(result)
+// 		// 		return result.accessToken;
+// 		// 	} else {
+// 		// 		return {cancelled: true};
+// 		// 	}
+// 		// } catch(e) {
+// 		// 	console.log(e)
+// 		// 	return {error: true};
+// 		// }
+// 	}
+
+// 	render(){
+// 		return (
+// 			<View>
+// 				<Text>yo</Text>
+// 				<Text>yo</Text>
+// 				<Text>yos</Text>
+// 				<TouchableHighlight underlayColor='yellow' onPress={()=>this.loginWithGoogle()}>
+// 					<Text>Google Login</Text>
+// 				</TouchableHighlight>
+// 			</View>
+// 		)
+// 	}
+// }
+
+
+
+
+
 
 
 export default class App extends React.Component {
@@ -44,14 +115,6 @@ export default class App extends React.Component {
 			messages: ['msg1'], 
 		}
 
-	}
-
-	componentDidMount(){
-		firebaseConnection.auth().onAuthStateChanged((user)=>{
-			if(user){
-				this.messages.push(user.uid)
-			}
-		})
 	}
 
 	focusNextField(id) {
@@ -103,7 +166,27 @@ export default class App extends React.Component {
 		}
 	}
 
-	// loginWithGoogle
+	logInWithGoogle = async()=>{
+		try {
+			const result = await Expo.Google.logInAsync({
+				androidClientId: androidGoogleClientId,
+				// iosClientId: YOUR_CLIENT_ID_HERE,
+				scopes: ['profile', 'email'],
+			});
+
+			console.log(result)
+			if (result.type === 'success') {
+				this.setState({text:result.user.name})
+				// return result.accessToken;
+			} else {
+				console.log("cancelled")
+				// return {cancelled: true};
+			}
+		} catch(e) {
+			console.log('error', e)
+			// return {error: true};
+		}
+	}
 
 	render() {
 		return (
@@ -177,7 +260,7 @@ export default class App extends React.Component {
 							<Text style={[styles.buttonText]}>Facebook Login</Text>
 						</TouchableHighlight>
 
-						<TouchableHighlight underlayColor='yellow' style={[styles.button]} onPress={()=>this.loginWithGoogle()}>
+						<TouchableHighlight underlayColor='yellow' style={[styles.button]} onPress={()=>this.logInWithGoogle()}>
 							<Text style={[styles.buttonText]}>Google Login</Text>
 						</TouchableHighlight>
 
