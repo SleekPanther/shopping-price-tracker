@@ -38,7 +38,7 @@ export default class App extends React.Component {
 		this.textInputs = {}
 
 		this.state = {
-			text: 'text1', 
+			itemName: 'item', 
 			currency: '$$', 
 			messages: ['msg1'], 
 		}
@@ -65,12 +65,12 @@ export default class App extends React.Component {
 	}
 
 	buttonPress(){
-		this.saveSomethingToDb()
+		this.saveItemSomethingToDb()
 	}
 
-	saveSomethingToDb(){
-		this.databse.ref('users/'+this.state.user.uid).set({
-			time: this.buildTime,
+	saveItemSomethingToDb(){
+		this.databse.ref(`users/${this.state.user.uid}/items/${this.state.itemName}`).set({
+			itemName: this.state.itemName+" "+this.buildTime,
 		})
 	}
 
@@ -105,7 +105,7 @@ export default class App extends React.Component {
 							<Text>Item</Text>
 							<TextInput 
 								style={[styles.inputBox, styles.thinBorder]}
-								onChangeText = {(text)=> this.setState({text})}
+								onChangeText = {(itemName)=> this.setState({itemName})}
 								ref={input=>{this.textInputs['itemName']=input}}
 								onSubmitEditing={(event)=>{
 									this.setState({text: event.nativeEvent.text})
@@ -114,7 +114,7 @@ export default class App extends React.Component {
 								blurOnSubmit={false}
 								returnLeyLabel='Next'
 								returnKeyType='next'
-								value={this.state.text} />
+								value={this.state.itemName} />
 						</View>
 
 						<View style={[styles.thinBorder, styles.box, styles.priceContainer]}>
