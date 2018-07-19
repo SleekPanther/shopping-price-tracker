@@ -1,3 +1,6 @@
+import App from "./app/index";
+export default App;
+/*
 import React from 'react'
 import {
 	StyleSheet,
@@ -58,6 +61,8 @@ export default class App extends React.Component {
 				}))
 			}
 		})
+
+		//maybe move setting inital state without this.setstate to avoid reload
 	}
 
 	focusNextField(id) {
@@ -183,3 +188,4 @@ export default class App extends React.Component {
 		)
 	}
 }
+*/
