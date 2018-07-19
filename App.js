@@ -11,9 +11,9 @@ import {
 	TouchableHighlight, 
 	TouchableOpacity, 
 	Platform, 
-} from 'react-native';
-import {SelectPicker, DatePicker} from 'react-native-select-picker';
-import {Constants} from 'expo'
+} from 'react-native'
+import {SelectPicker, DatePicker} from 'react-native-select-picker'
+import Expo, {Constants, Facebook} from 'expo'
 
 import * as firebase from 'firebase'
 import firebaseConnection from './admin/firebaseSetup'		//get credentials file & connect
@@ -35,75 +35,66 @@ export default class App extends React.Component {
 		// 	time: this.buildTime,
 		// })
 
-		this.focusNextField = this.focusNextField.bind(this);
+		this.focusNextField = this.focusNextField.bind(this)
 		this.textInputs = {}
 
 		this.state = {
-			text: facebookAppId, 
+			text: 'text1', 
 			currency: '$$', 
 			messages: ['msg1'], 
 		}
 
-	}
-
-	componentDidMount(){
-		firebaseConnection.auth().onAuthStateChanged((user)=>{
-			if(user){
-				this.messages.push(user.uid)
+		firebase.auth().onAuthStateChanged(user => {
+			if (user != null) {
+				console.log(user)
+				this.setState(prevState =>({
+					messages: [prevState.messages, 'logged in'], 
+					loggedIn: true, 
+					user: user, 
+				}))
+			} else {
+				this.setState(prevState =>({
+					messages: [prevState.messages, 'NOT in'], 
+					loggedIn: false, 
+				}))
 			}
 		})
 	}
 
 	focusNextField(id) {
-		this.textInputs[id].focus();
+		this.textInputs[id].focus()
 	}
 
 	buttonPress(){
 		this.saveSomethingToDb()
 	}
 
-	// Listen for authentication state to change.
-	//Created when mounting, not updated later?
-	componentDidMount(){
-		this.unsubscribe = firebase.auth().onAuthStateChanged((user) => {
-			if (user!=null) {
-				console.log('not logged in')
-				//navigate somewhere
-			}
-			else{
-				console.log(user)
-				saveSomethingToDb()
-			}
-		});
-	}
-
 	saveSomethingToDb(){
-		this.databse.ref('users/'+'noah').set({
+		this.databse.ref('users/'+this.state.user.uid).set({
 			time: this.buildTime,
 		})
-		// this.databse.ref('users/'+user.uid).set({
-		// 	time: this.buildTime,
-		// })
 	}
 
 	async loginWithFacebook() {
 		const { type, token } = await Expo.Facebook.logInWithReadPermissionsAsync(
 			facebookAppId,
 			{ permissions: ['public_profile'] }
-		);
+		)
 
 		if (type === 'success') {
-			const credential = firebase.auth.FacebookAuthProvider.credential(token);
-			console.log('firebasse credential=', credential)
+			const credential = firebase.auth.FacebookAuthProvider.credential(token)
 
 			// Sign in with credential from the Facebook user.
 			firebase.auth().signInAndRetrieveDataWithCredential(credential).catch((error) => {
 				console.log(error)
-			});
+				this.setState(prevState=>({messages: [this.state.messages, error]}))
+			})
 		}
 	}
 
-	// loginWithGoogle
+	loginWithEmail(){
+		alert('Not implemented yet')
+	}
 
 	render() {
 		return (
@@ -177,8 +168,8 @@ export default class App extends React.Component {
 							<Text style={[styles.buttonText]}>Facebook Login</Text>
 						</TouchableHighlight>
 
-						<TouchableHighlight underlayColor='yellow' style={[styles.button]} onPress={()=>this.loginWithGoogle()}>
-							<Text style={[styles.buttonText]}>Google Login</Text>
+						<TouchableHighlight underlayColor='yellow' style={[styles.button]} onPress={()=>this.loginWithEmail()}>
+							<Text style={[styles.buttonText]}>Email Login</Text>
 						</TouchableHighlight>
 
 						<Text>{this.state.text}</Text>
@@ -194,7 +185,6 @@ export default class App extends React.Component {
 	}
 }
 
-//export styles to another file
 const styles = StyleSheet.create({
 	appContainer:{
 		flex: 1, 
