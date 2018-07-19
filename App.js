@@ -21,6 +21,8 @@ import facebookAppId from './admin/facebookAppSetup'
 
 import CONSTANTS from './constants/constants'
 
+import styles from './style/styles'
+
 
 export default class App extends React.Component {
 	constructor(props){
@@ -31,9 +33,6 @@ export default class App extends React.Component {
 
 
 		this.databse = firebaseConnection.database()
-		// this.databse.ref().set({
-		// 	time: this.buildTime,
-		// })
 
 		this.focusNextField = this.focusNextField.bind(this)
 		this.textInputs = {}
@@ -184,84 +183,3 @@ export default class App extends React.Component {
 		)
 	}
 }
-
-const styles = StyleSheet.create({
-	appContainer:{
-		flex: 1, 
-	}, 
-	statusBar: {
-		backgroundColor: "#000",
-		height: Platform.OS === 'ios' ? 0 : Expo.Constants.statusBarHeight, 
-	}, 
-	container: {
-		backgroundColor: '#fff',
-		flex: 1,
-		flexDirection: 'column', 
-		justifyContent: 'center',
-	},
-
-	largeText:{
-		fontSize: 45,
-	},
-	thinBorder:{
-		borderWidth: StyleSheet.hairlineWidth, 
-	}, 
-
-	addNewContainer:{
-		flex: 1/2, 
-		flexDirection: 'row', 
-		justifyContent: 'space-between', 
-		alignItems: 'center', 
-
-		borderWidth: 1, 
-		borderColor: '#f00',  
-	}, 
-	box:{
-		flex: 1, 
-		flexDirection: 'column', 
-	}, 
-	row:{
-		flexDirection: 'row', 
-	}, 
-	column:{
-		flexDirection: 'column', 
-	}, 
-	priceContainer:{
-		// flex: .5, 
-	}, 
-	priceInnerContainer:{
-		alignItems: 'center', 
-		marginTop: -27, 
-	}, 
-	priceLabel:{
-		marginLeft: 26, 
-	}, 
-	pricePicker:{
-		flex: 1, 
-	}, 
-	priceInput:{
-		flex:1, 
-	}, 
-
-	inputBox:{
-		fontSize: 19, 
-		padding: 4, 
-		paddingTop: 0, 
-		paddingBottom: 0, 
-	}, 
-
-	button:{
-		margin: 1, 
-		padding: 3, 
-		paddingTop: 0, 
-		paddingBottom: 0, 
-		alignItems: 'center', 
-		borderWidth: 2, 
-		borderRadius: 5, 
-		backgroundColor: 'lightgray', 
-	}, 
-	buttonText:{
-		fontSize: 15, 
-		fontWeight: 'bold', 
-	},
-})
