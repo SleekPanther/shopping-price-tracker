@@ -1,15 +1,32 @@
-import React from "react";
-import { ScrollView, Text, Linking, View } from "react-native";
+import React from 'react'
+import {
+	StyleSheet,
+	Text,
+	View,
+	AppRegistry,
+	StatusBar,
+	Image, 
+	Dimensions, 
+	TextInput, 
+	TouchableHighlight, 
+	TouchableOpacity, 
+	Platform, 
+} from 'react-native'
+
+import styles from '../style/styles'
+import homeStyles from '../style/homeStyles'
+
 import * as firebase from 'firebase'
 import firebaseConnection from '../admin/firebaseSetup'
+
 
 export default class Home extends React.Component {
 	constructor(props){
 		super(props)
 
-		const user = this.props.navigation.getParam('user', 'none')
+		const user = this.props.navigation.getParam('user', null)
 		this.state={
-			uid: user.uid, 
+			uid: user ? user.uid : 'none', 
 		}
 	}
 
@@ -38,19 +55,24 @@ export default class Home extends React.Component {
 		const uid = user.uid
 
 		return (
-			<View style={{ flex: 1, justifyContent: 'center' }}>
-				<Text>Page: Home</Text>
-				<Text>-</Text>
-				<Text onPress={() => this.props.navigation.navigate("SignIn",{from:'home'})} >Go to Login</Text>
-				<Text>-</Text>
-				<Text onPress={()=>this.test()}>Click me</Text>
-				<Text>-</Text>
-				<Text onPress={()=>this.navState()}>Nav state</Text>
-				<Text>-</Text>
-				<Text onPress={()=>this.signOutUser()}>SIGN OUT</Text>
-				<Text>-</Text>
-				<Text>{`uid=${uid}`}</Text>
-				<Text>{`uid STATE=${this.state.uid}`}</Text>
+			<View style={[styles.appContainer]}>
+				<View style={[styles.statusBar]}></View>
+				<View style={[styles.container]}>
+
+					<Text style={[homeStyles.specialHome]}>Page: Home</Text>
+					<Text>-</Text>
+					<Text onPress={() => this.props.navigation.navigate("SignIn",{from:'home'})} >Go to Login</Text>
+					<Text>-</Text>
+					<Text onPress={()=>this.test()}>Click me</Text>
+					<Text>-</Text>
+					<Text onPress={()=>this.navState()}>Nav state</Text>
+					<Text>-</Text>
+					<Text onPress={()=>this.signOutUser()}>SIGN OUT</Text>
+					<Text>-</Text>
+					<Text>{`uid=${uid}`}</Text>
+					<Text>{`uid STATE=${this.state.uid}`}</Text>
+
+				</View>
 			</View>
 		)
 	}

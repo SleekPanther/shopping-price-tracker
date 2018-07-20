@@ -1,10 +1,28 @@
-import React from "react"
-import { View, Text } from "react-native"
+import React from 'react'
+import {
+	StyleSheet,
+	Text,
+	View,
+	AppRegistry,
+	StatusBar,
+	Image, 
+	Dimensions, 
+	TextInput, 
+	TouchableHighlight, 
+	TouchableOpacity, 
+	Platform, 
+} from 'react-native'
+
+import styles from '../style/styles'
+import signInStyles from '../style/signInStyles'
+
 // import { onSignIn } from "../auth"
-import Expo, {Constants, Facebook} from 'expo'
+
 import * as firebase from 'firebase'
 import firebaseConnection from '../admin/firebaseSetup'
+import Expo, {Constants, Facebook} from 'expo'
 import facebookAppId from '../admin/facebookAppSetup'
+
 
 export default class SignIn extends React.Component {
 	constructor(props){
@@ -57,17 +75,22 @@ export default class SignIn extends React.Component {
 
 	render(){
 		return (
-			<View style={{ flex: 1 }}>
-				<Text>-</Text>
-				<Text>--</Text>
-				<Text>Page: Sign in</Text>
-				<Text>--</Text>
-				<Text onPress={()=>{this.loginWithFacebook()}}>Facebook Login</Text>
-				<Text>-</Text>
-				<Text onPress={()=>this.test()}>Click me</Text>
-				<Text>-</Text>
-				<Text onPress={()=>this.navState()}>Nav state</Text>
-				<Text>-</Text>
+			<View style={[styles.appContainer]}>
+				<View style={[styles.statusBar]}></View>
+				<View style={[styles.container]}>
+
+					<Text>-</Text>
+					<Text>--</Text>
+					<Text>Page: Sign in</Text>
+					<Text>--</Text>
+					<Text onPress={()=>{this.loginWithFacebook()}}>Facebook Login</Text>
+					<Text>-</Text>
+					<Text onPress={()=>this.test()}>Click me</Text>
+					<Text>-</Text>
+					<Text onPress={()=>this.navState()}>Nav state</Text>
+					<Text>-</Text>
+
+				</View>
 			</View>
 		)
 	}

@@ -12,10 +12,6 @@ import Home from './screens/Home'
 import Help from './screens/Help'
 import Loading from './screens/Loading'
 
-const headerStyle = {
-	marginTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0
-}
-
 // export const SignedOut = createStackNavigator({
 // 	// SignUp: {
 // 	// 	screen: SignUp,
@@ -66,14 +62,17 @@ const headerStyle = {
 export const createRootNavigator = () => {
 	return createSwitchNavigator(
 		{
-			SignIn: {
-				screen: SignIn
-			}, 
 			Loading:{
 				screen: Loading
 			}, 
+			SignIn: {
+				screen: SignIn
+			}, 
 			Home: {
 				screen: Home
+			},
+			Help: {
+				screen: Help
 			},
 		},
 		{

@@ -1,9 +1,12 @@
 import React from "react"
 import { View, Text, ActivityIndicator } from "react-native"
+
+import styles from '../style/styles'
+import loadingStyles from '../style/loadingStyles'
+
 import * as firebase from 'firebase'
 import firebaseConnection from '../admin/firebaseSetup'
 
-import styles from '../style/styles'
 
 export default class SignIn extends React.Component {
 	constructor(props){
@@ -23,11 +26,16 @@ export default class SignIn extends React.Component {
 
 	render(){
 		return (
-			<View style={styles.spinnerStyle}>
-				<Text>-</Text>
-				<Text>-</Text>
-				<Text>Page: Loading</Text>
-				<ActivityIndicator size="large" color="#0000ff" />
+			<View style={[styles.appContainer]}>
+				<View style={[styles.statusBar]}></View>
+				<View style={[styles.container]}>
+
+					<Text>-</Text>
+					<Text>-</Text>
+					<Text>Page: Loading</Text>
+					<ActivityIndicator style={styles.spinner} size="large" color="#00f" />
+
+				</View>
 			</View>
 		)
 	}
