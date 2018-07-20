@@ -1,19 +1,32 @@
 import {StyleSheet} from 'react-native'
 
+
+
 const homeStyles = StyleSheet.create({
 	specialHome:{
 		fontSize: 20, 
 	}, 
 
-	addNewContainer:{
-		flex: 1/2, 
+	addNewItemContainer:{
 		flexDirection: 'row', 
-		justifyContent: 'space-between', 
-		alignItems: 'center', 
+		// justifyContent: 'space-between', 
+		// alignItems: 'center', 
 
-		borderWidth: 1, 
-		borderColor: '#f00',  
+		// borderWidth: 1, 
+		// borderColor: '#f00',  
 	}, 
+	//left padding/margin on floating inputs
+	horizontalInput:{
+		flex: 1, 
+	}, 
+	currencyPicker:{
+		flex: .4, 
+	}, 
+	newPriceInput:{
+		flex: .6, 
+	}, 
+
+
 	box:{
 		flex: 1, 
 		flexDirection: 'column', 
