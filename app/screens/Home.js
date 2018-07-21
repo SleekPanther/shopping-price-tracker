@@ -11,8 +11,9 @@ import {
 	TouchableHighlight, 
 	TouchableOpacity, 
 	Platform, 
+	ListView, 
 } from 'react-native'
-import { Container, Header, Content, Button, Form, Item, Picker, Input, Label, Icon } from 'native-base'
+import { Container, Header, Content, Button, Form, Item, Picker, Input, Label, Icon, List, ListItem } from 'native-base'
 import Collapsible from 'react-native-collapsible'
 
 import styles from '../style/styles'
@@ -25,6 +26,26 @@ import {leftPadZeros} from '../util/stringUtils'
 
 import CONSTANTS from '../constants/constants'
 
+let existingItems = [
+	{
+		"itemName": "DEFAULT Item",
+		"currency": "$",
+		"price": "00",
+		"store": "dollar",
+	}, 
+	{
+		"itemName": "two",
+		"currency": "$",
+		"price": "00",
+		"store": "dd",
+	}, 
+	{
+		"itemName": "THREE",
+		"currency": "$",
+		"price": "00",
+		"store": "b",
+	}
+]
 
 export default class Home extends React.Component {
 	constructor(props){
@@ -34,7 +55,7 @@ export default class Home extends React.Component {
 		this.buildTime = `${leftPadZeros(now.getHours(), 2)}:${leftPadZeros(now.getMinutes(), 2)}:${leftPadZeros(now.getSeconds(), 2)}`
 
 
-		this.databse = firebase.database()
+		this.existingItemsDataSource = new ListView.DataSource({rowHasChanged: (row1, row2) => row1!==row2})
 
 		const user = this.props.navigation.getParam('user', null)
 		this.state={
@@ -46,8 +67,28 @@ export default class Home extends React.Component {
 			newItemPrice: '10.90', 
 			newItemStore: 'costco', 
 
+			existingItems: existingItems, 
+
 			//editItemName, currency price store etc
 		}
+	}
+
+	componentDidMount(){
+		// let thisOld = this	//save current this for async?
+
+		//items changed listener
+		firebase.database().ref(`users/${this.state.uid}/items/`).on('value', (items)=>{
+			let newExistingItems = []
+			items.forEach((item)=>{
+				newExistingItems.push({
+						itemName: item.key, 	//firebase stored the item name as the key
+						currency: item.val().currency, 
+						price: item.val().price, 
+						store: item.val().store, 
+				})
+			})
+			this.setState({existingItems: newExistingItems})
+		})
 	}
 
 	async signOutUser(){
@@ -65,10 +106,9 @@ export default class Home extends React.Component {
 		this.setState(prevState=>({
 			addItemVisible : !prevState.addItemVisible
 		}))
-		console.log('toggling')
 	}
 
-	clearNewItem(){
+	clearNewItemFields(){
 		this.setState({
 			newItemName: '', 
 			newItemCurrency: CONSTANTS.CURRENCIES[0], 
@@ -79,15 +119,60 @@ export default class Home extends React.Component {
 
 	saveNewItemToDb(){
 		//must check null item name 1st OR ELSE IT KILLS ALL ITEMS IN FIREBASE
+		//& check uid not null
 
-		this.databse.ref(`users/${this.state.uid}/items/${this.state.newItemName}`).set({
-			itemName: this.state.newItemName, 
+		firebase.database().ref(`users/${this.state.uid}/items/${this.state.newItemName}`).set({
 			currency: this.state.newItemCurrency, 
 			price: this.state.newItemPrice, 
 			store: this.state.newItemStore, 
 		})
+
+		this.clearNewItemFields()		//clear fields once added
 	}
 
+	_renderRow(item){
+		return(
+			<ListItem >
+		 		<Text>{item.itemName}</Text>
+		 		<Text>{` (${item.currency}${item.price}) `}</Text>
+		 		<Text>{`from ${item.store}`}</Text>
+		 	</ListItem>
+		)
+	}
+
+	_renderLeftHiddenRow(item){
+		return(
+			<Button full onPress={() => this.edit(item)}>
+				<Icon name="md-brush" />
+			</Button>
+		)
+	}
+
+	_renderRightHiddenRow(item, secId, rowId, rowMap){
+		return(
+			<Button full danger >
+				<Icon name="md-trash" onPress={() => this.deleteRow(secId, rowId, rowMap, item)}/>
+			</Button>
+		)
+	}
+
+	edit(item){
+		alert('implement edit', item.name)
+	}
+
+	async deleteRow(secId, rowId, rowMap, item) {
+		//Remove from UI before database call, otherwise async messes things up
+		rowMap[`${secId}${rowId}`].props.closeRow()
+		let newExistingItems = [...this.state.existingItems]
+		newExistingItems.splice(rowId, 1)	//start at specific row & remove 1 element
+		this.setState({existingItems: newExistingItems})
+
+		await firebase.database().ref(`users/${this.state.uid}/items/${item.itemName}`).remove()
+	}
+
+	logMe(thing){
+		console.log(thing)
+	}
 
 	test(){
 		console.log(this.props)
@@ -101,7 +186,7 @@ export default class Home extends React.Component {
 	render(){
 		const user = this.props.navigation.getParam('user', 'none')
 		const uid = user.uid
-		console.log(this.state)
+		// console.log('State\n', this.state)
 
 		return (
 			<View style={[styles.appContainer]}>
@@ -115,8 +200,8 @@ export default class Home extends React.Component {
 
 	 					<Form style={[!this.state.addItemVisible && {display: 'none'}]}>
 	 						<View style={[styles.row]}>
-								<Item regular floatingLabel style={[homeStyles.horizontalInput]}>
-									<Label>Item</Label>
+								<Item regular floatingLabel style={[homeStyles.horizontalInput, styles.margin0]}>
+									<Label >Item</Label>
 									<Input value={this.state.newItemName}
 										onChangeText={(newItemName)=> this.setState({newItemName})} />
 								</Item>
@@ -153,12 +238,22 @@ export default class Home extends React.Component {
 									<Icon name='md-add' />
 									<Text>Add</Text>
 								</Button>
-								<Button iconLeft danger onPress={()=>this.clearNewItem()}>
+								<Button iconLeft danger onPress={()=>this.clearNewItemFields()}>
 									<Icon name='md-close' />
 									<Text>Clear</Text>
 								</Button>
 							</View>
 	 					</Form>
+
+	 					<List
+		 					enableEmptySections
+		 					dataSource={this.existingItemsDataSource.cloneWithRows(this.state.existingItems)}
+		 					renderRow={item => this._renderRow(item)}
+		 					renderLeftHiddenRow={item => this._renderLeftHiddenRow(item)}
+		 					renderRightHiddenRow={(item, secId, rowId, rowMap) => this._renderRightHiddenRow(item, secId, rowId, rowMap)}
+		 					leftOpenValue={50}
+		 					rightOpenValue={-50}
+	 					/>
 
 						<Text style={[homeStyles.specialHome]}>Page: Home</Text>
 						<Text>{`Built ${this.buildTime}`}</Text>
