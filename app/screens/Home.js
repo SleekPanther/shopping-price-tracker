@@ -14,7 +14,8 @@ import {
 	ListView, 
 } from 'react-native'
 import { Container, Header, Content, Button, Form, Item, Picker, Input, Label, Icon, List, ListItem } from 'native-base'
-import Collapsible from 'react-native-collapsible'
+
+import Collapsible from 'react-native-collapsible'	//probably unused
 
 import styles from '../style/styles'
 import homeStyles from '../style/homeStyles'
@@ -143,7 +144,7 @@ export default class Home extends React.Component {
 	_renderLeftHiddenRow(item){
 		return(
 			<Button full onPress={() => this.edit(item)}>
-				<Icon name="md-brush" />
+				<Icon type='Entypo' name='edit' style={[styles.icon]} />
 			</Button>
 		)
 	}
