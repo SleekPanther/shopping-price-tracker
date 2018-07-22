@@ -23,7 +23,7 @@ import homeStyles from '../style/homeStyles'
 import * as firebase from 'firebase'
 import firebaseConnection from '../admin/firebaseSetup'
 
-import {leftPadZeros} from '../util/stringUtils'
+import {leftPadZeros, compareString, compareStringReverse} from '../util/StringUtils'
 
 import CONSTANTS from '../constants/constants'
 
@@ -71,6 +71,9 @@ export default class Home extends React.Component {
 			existingItems: existingItems, 
 
 			//editItemName, currency price store etc
+
+			sortBy: 'itemName', 
+			sortAscending: true, 
 		}
 	}
 
@@ -88,8 +91,41 @@ export default class Home extends React.Component {
 						store: item.val().store, 
 				})
 			})
-			this.setState({existingItems: newExistingItems})
+			const {sortBy, sortAscending} = this.state
+			this.setState({existingItems: this.filterGroupAndSort(newExistingItems, sortBy, sortAscending)})
 		})
+	}
+
+	filterGroupAndSort(newExistingItems, sortBy, sortAscending){
+		this.sort(newExistingItems, sortBy, sortAscending)
+		return newExistingItems
+	}
+	
+	sort(items, sortBy, sortAscending){
+		if(sortBy === 'itemName'){
+			if(sortAscending){
+				items.sort((item1, item2)=>compareString(item1.itemName, item2.itemName))
+			}
+			else{
+				items.sort((item1, item2)=>compareStringReverse(item1.itemName, item2.itemName))
+			}
+		}
+		else if(sortBy === 'store'){
+			if(sortAscending){
+				items.sort((item1, item2)=>compareString(item1.store, item2.store))
+			}
+			else{
+				items.sort((item1, item2)=>compareStringReverse(item1.store, item2.store))
+			}
+		}
+		else if(sortBy === 'price'){
+			if(sortAscending){
+				items.sort((item1, item2)=>item1.price-item2.price)
+			}
+			else{
+				items.sort((item1, item2)=>item2.price-item1.price)
+			}
+		}
 	}
 
 	async signOutUser(){
@@ -105,7 +141,21 @@ export default class Home extends React.Component {
 
 	toggleAddItemVisiblity(){
 		this.setState(prevState=>({
-			addItemVisible : !prevState.addItemVisible
+			addItemVisible: !prevState.addItemVisible
+		}))
+	}
+
+	toggleSortOrder(){
+		this.setState(prevState=>({
+			sortAscending: !prevState.sortAscending, 
+			existingItems: this.filterGroupAndSort(prevState.existingItems, prevState.sortBy, !prevState.sortAscending), 	//negated again since async might mess things up
+		}))
+	}
+
+	changeSortBy(sortBy){
+		this.setState(prevState=>({
+			sortBy: sortBy, 
+			existingItems: this.filterGroupAndSort(prevState.existingItems, sortBy, prevState.sortAscending), 	//not async this time
 		}))
 	}
 
@@ -187,7 +237,7 @@ export default class Home extends React.Component {
 	render(){
 		const user = this.props.navigation.getParam('user', 'none')
 		const uid = user.uid
-		// console.log('State\n', this.state)
+		console.log('State\n', this.state)
 
 		return (
 			<View style={[styles.appContainer]}>
@@ -201,7 +251,7 @@ export default class Home extends React.Component {
 
 	 					<Form style={[!this.state.addItemVisible && {display: 'none'}]}>
 	 						<View style={[styles.row]}>
-								<Item regular floatingLabel style={[homeStyles.horizontalInput, styles.margin0]}>
+								<Item regular floatingLabel style={[homeStyles.horizontalInput]}>
 									<Label >Item</Label>
 									<Input value={this.state.newItemName}
 										onChangeText={(newItemName)=> this.setState({newItemName})} />
@@ -243,6 +293,30 @@ export default class Home extends React.Component {
 									<Icon name='md-close' />
 									<Text>Clear</Text>
 								</Button>
+							</View>
+	 					</Form>
+
+	 					<Form >
+		 					<View style={[styles.row]}>
+		 						<Text style={[styles.horizontalInput]}>Sort by</Text>
+		 						<Item picker style={[homeStyles.horizontalInput]}>
+									<Picker
+										mode='dropdown'
+										selectedValue={this.state.sortBy}
+										iosIcon={<Icon name='ios-arrow-down-outline' />}
+										style={{ width: undefined }}
+										onValueChange={(sortBy)=>this.changeSortBy(sortBy)}
+										>
+										<Picker.Item label='Item' value='itemName' />
+										<Picker.Item label='$' value='price' />
+										<Picker.Item label='$ unit' value='unit price' />
+										<Picker.Item label='Store' value='store' />
+									</Picker>
+								</Item>
+								<Icon  onPress={()=>this.toggleSortOrder()} 
+									name={
+										this.state.sortAscending ? 'md-arrow-up': 'md-arrow-down'
+									}/>
 							</View>
 	 					</Form>
 

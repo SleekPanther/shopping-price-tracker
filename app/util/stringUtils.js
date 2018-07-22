@@ -4,3 +4,28 @@ export const leftPadZeros = (num, desiredLength) => {
 	var s = '000000000' + num
 	return s.substr(s.length-desiredLength)
 }
+
+export const compareString = (string1, string2)=>{
+	console.log("new file")
+	string1 = string1.toLowerCase()
+	string2 = string2.toLowerCase()
+	if(string1 < string2){
+		return -1
+	}
+	else if(string1 > string2){
+		return 1
+	}
+	return 0
+}
+
+export const compareStringReverse = (string1, string2)=>{
+	string1 = string1.toLowerCase()
+	string2 = string2.toLowerCase()
+	if(string1 < string2){
+		return 1	//opposite of normal
+	}
+	else if(string1 > string2){
+		return -1	//opposite of normal
+	}
+	return 0
+}
