@@ -76,7 +76,7 @@ export const createRootNavigator = () => {
 			},
 		},
 		{
-			initialRouteName: 'Loading'
+			initialRouteName: 'Home'
 		}
 	)
 }

@@ -6,7 +6,6 @@ export const leftPadZeros = (num, desiredLength) => {
 }
 
 export const compareString = (string1, string2)=>{
-	console.log("new file")
 	string1 = string1.toLowerCase()
 	string2 = string2.toLowerCase()
 	if(string1 < string2){

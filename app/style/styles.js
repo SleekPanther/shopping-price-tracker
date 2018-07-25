@@ -30,7 +30,9 @@ const styles = StyleSheet.create({
 	},
 	thinBorder:{
 		borderWidth: StyleSheet.hairlineWidth, 
-		// borderColor: 'red', 
+	}, 
+	icon:{
+		fontSize: 19, 
 	}, 
 
 	button:{

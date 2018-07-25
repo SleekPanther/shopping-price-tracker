@@ -22,6 +22,7 @@ import homeStyles from '../style/homeStyles'
 
 import * as firebase from 'firebase'
 import firebaseConnection from '../admin/firebaseSetup'
+import {adminFBUid} from '../admin/hardcoded-users'
 
 import {leftPadZeros, compareString, compareStringReverse} from '../util/StringUtils'
 
@@ -60,7 +61,8 @@ export default class Home extends React.Component {
 
 		const user = this.props.navigation.getParam('user', null)
 		this.state={
-			uid: user ? user.uid : 'none', 
+			// uid: user ? user.uid : 'none', 
+			uid: adminFBUid,	//skip loading page & login stage
 			addItemVisible: true, 
 
 			newItemName: 'name-'+this.buildTime, 
@@ -125,6 +127,9 @@ export default class Home extends React.Component {
 			else{
 				items.sort((item1, item2)=>item2.price-item1.price)
 			}
+		}
+		else if(sortBy === 'unit price'){
+			
 		}
 	}
 
