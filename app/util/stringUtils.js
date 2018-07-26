@@ -28,3 +28,7 @@ export const compareStringReverse = (string1, string2)=>{
 	}
 	return 0
 }
+
+export const capitalizeFirstLetter = (string) =>{
+	return string.charAt(0).toUpperCase() + string.substr(1)	//substring for 2nd letter to the end
+}

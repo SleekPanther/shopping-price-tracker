@@ -15,7 +15,6 @@ const homeStyles = StyleSheet.create({
 		// borderWidth: 1, 
 		// borderColor: '#f00',  
 	}, 
-	//left padding/margin on floating inputs
 	horizontalInput:{
 		flex: 1, 
 	}, 
@@ -24,6 +23,10 @@ const homeStyles = StyleSheet.create({
 	}, 
 	newPriceInput:{
 		flex: .6, 
+	}, 
+	storeSuggestContainer: {
+		position: 'absolute', 
+		backgroundColor: '#fff', 
 	}, 
 
 

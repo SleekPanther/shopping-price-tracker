@@ -24,6 +24,9 @@ const styles = StyleSheet.create({
 	column:{
 		flexDirection: 'column', 
 	}, 
+	relative:{
+		position: 'relative', 
+	}, 
 
 	largeText:{
 		fontSize: 45,

@@ -24,7 +24,7 @@ import * as firebase from 'firebase'
 import firebaseConnection from '../admin/firebaseSetup'
 import {adminFBUid} from '../admin/hardcoded-users'
 
-import {leftPadZeros, compareString, compareStringReverse} from '../util/StringUtils'
+import {leftPadZeros, compareString, compareStringReverse, capitalizeFirstLetter} from '../util/StringUtils'
 
 import CONSTANTS from '../constants/constants'
 
@@ -49,6 +49,9 @@ let existingItems = [
 	}
 ]
 
+const defaultStore = 'Uncategorized'
+const defaultPrice = 0
+
 export default class Home extends React.Component {
 	constructor(props){
 		super(props)
@@ -68,33 +71,53 @@ export default class Home extends React.Component {
 			newItemName: 'name-'+this.buildTime, 
 			newItemCurrency: CONSTANTS.CURRENCIES[0], 
 			newItemPrice: '10.90', 
-			newItemStore: 'costco', 
+			newItemStore: 'Costco', 
 
 			existingItems: existingItems, 
+			stores: ['default store'], 
+			filteredStores: ['filtered default'], 
 
 			//editItemName, currency price store etc
 
 			sortBy: 'itemName', 
 			sortAscending: true, 
+
+			showStoreSuggest: false,
 		}
 	}
 
 	componentDidMount(){
 		// let thisOld = this	//save current this for async?
 
+		//change to child_added & always trust the user device instead of databse?
+		//maybe have an child_added listener and then an initial once() call to populate stuff
+
 		//items changed listener
 		firebase.database().ref(`users/${this.state.uid}/items/`).on('value', (items)=>{
 			let newExistingItems = []
-			items.forEach((item)=>{
+			items.forEach(item=>{
 				newExistingItems.push({
-						itemName: item.key, 	//firebase stored the item name as the key
-						currency: item.val().currency, 
-						price: item.val().price, 
-						store: item.val().store, 
+					itemName: item.key, 	//firebase stored the item name as the key
+					currency: item.val().currency, 
+					price: item.val().price, 
+					store: item.val().store, 
 				})
 			})
 			const {sortBy, sortAscending} = this.state
 			this.setState({existingItems: this.filterGroupAndSort(newExistingItems, sortBy, sortAscending)})
+		})
+
+		//Stores listener
+		firebase.database().ref(`users/${this.state.uid}/stores/`).on('value', (storesReturned)=>{
+			let newStores = []
+			storesReturned.forEach(store=>{
+				newStores.push(store.key)
+			})
+			const {newItemStore} = this.state
+			this.setState({
+				stores: newStores, 
+				filteredStores: this.getFilteredSugggestions(newStores, newItemStore), 
+			})
 		})
 	}
 
@@ -170,18 +193,52 @@ export default class Home extends React.Component {
 			newItemCurrency: CONSTANTS.CURRENCIES[0], 
 			newItemPrice: '', 
 			newItemStore: '', 
+			filteredStores: this.state.stores,	//reset filtering so stores dropdown displays all opotions again
+		})
+	}
+
+	handleStoreChange(storeText){
+		const {stores} = this.state
+		this.setState({
+			newItemStore: storeText, 
+			filteredStores: this.getFilteredSugggestions(stores, storeText), 
+		})
+	}
+
+	getFilteredSugggestions(list, search){
+		return list.filter(item=> {
+			return item.toLowerCase().indexOf(search.toLowerCase().trim()) !== -1
 		})
 	}
 
 	saveNewItemToDb(){
 		//must check null item name 1st OR ELSE IT KILLS ALL ITEMS IN FIREBASE
 		//& check uid not null
+		if(!this.state.newItemName){
+			alert("NO ITEM NAME!")
+			return
+		}
+
+		//price should be trimmed & remove non-numeric with regeex while typing
+
+		let store = this.state.newItemStore.trim()
+		if(store==''){
+			store=defaultStore
+		}
+		store = capitalizeFirstLetter(store)
 
 		firebase.database().ref(`users/${this.state.uid}/items/${this.state.newItemName}`).set({
 			currency: this.state.newItemCurrency, 
 			price: this.state.newItemPrice, 
-			store: this.state.newItemStore, 
+			store: store, 
 		})
+
+		if(!this.state.stores.some(aStore => aStore.toLowerCase()===store.toLowerCase())){		//check store is new before adding
+			//also add to state stores?	DB listener probably already catches it
+			firebase.database().ref(`users/${this.state.uid}/stores/`).update({
+				[store] : true, 
+			})
+		}
 
 		this.clearNewItemFields()		//clear fields once added
 	}
@@ -221,9 +278,26 @@ export default class Home extends React.Component {
 		rowMap[`${secId}${rowId}`].props.closeRow()
 		let newExistingItems = [...this.state.existingItems]
 		newExistingItems.splice(rowId, 1)	//start at specific row & remove 1 element
-		this.setState({existingItems: newExistingItems})
+
+		let {stores} = this.state
+		let storeIndex = -1		//initialize to not found value
+		for(let i=0; i<stores.length; i++){
+			if(stores[i].toLowerCase() === item.store.toLowerCase()){
+				storeIndex=i
+				break
+			}
+		}
+		if(storeIndex !== -1){
+			stores.splice(storeIndex, 1)	//remove 1 store at the index
+			await firebase.database().ref(`users/${this.state.uid}/stores/${item.store}`).remove()
+		}
 
 		await firebase.database().ref(`users/${this.state.uid}/items/${item.itemName}`).remove()
+
+		this.setState({
+			existingItems: newExistingItems, 
+			stores: stores, 
+		})
 	}
 
 	logMe(thing){
@@ -280,13 +354,30 @@ export default class Home extends React.Component {
 									<Label>Price</Label>
 									<Input keyboardType='numeric'
 										value={this.state.newItemPrice}
-										onChangeText={(newItemPrice)=> this.setState({newItemPrice})} />
+										onChangeText={(newItemPrice)=> this.setState({newItemPrice})}
+									/>
 								</Item>
-								<Item regular floatingLabel last style={[homeStyles.horizontalInput]}>
-									<Label>Store</Label>
-									<Input value={this.state.newItemStore}
-										onChangeText={(newItemStore)=> this.setState({newItemStore})} />
-								</Item>
+								<View style={[homeStyles.horizontalInput]}>
+									<Item regular floatingLabel>
+										<Label>Store</Label>
+										<Input value={this.state.newItemStore}
+											onChangeText={(newItemStore)=> this.handleStoreChange(newItemStore)}
+											onFocus={()=>{this.setState({showStoreSuggest: true})}}
+											onBlur={()=>{this.setState({showStoreSuggest: false})}}
+										/>
+									</Item>
+									<View style={[styles.relative]}>
+										<View style={[homeStyles.storeSuggestContainer]}>
+											{this.state.showStoreSuggest && this.state.filteredStores.map((store, index)=> {
+												return (
+													<TouchableHighlight underlayColor='yellow' onPress={() => this.setState({newItemStore: store})}>
+														<Text key={index}>{store}</Text>
+													</TouchableHighlight>
+												)
+											})}
+										</View>
+									</View>
+								</View>
 							</View>
 
 							<View style={[styles.row]}>
